@@ -29,3 +29,15 @@ signatures = custom_target(
         '--no-modules',
     ],
 )
+
+meson_docs_h = custom_target(
+    output: 'meson_docs.h',
+    command: [
+        genrefman,
+        '-q',
+        '-l', 'fastyaml',
+        '-g', 'c',
+        '-o', '@OUTPUT@',
+        '--no-modules',
+    ],
+)
