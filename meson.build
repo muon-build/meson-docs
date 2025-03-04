@@ -1,6 +1,8 @@
 project('meson')
 
-genrefman = find_program('docs/genrefman.py')
+python = import('python').find_installation('python3', modules: ['yaml'])
+
+genrefman = [python, meson.project_source_root() / 'docs/genrefman.py']
 
 meson_reference_3 = custom_target(
     'meson_reference.3',
