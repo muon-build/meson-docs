@@ -93,6 +93,7 @@ There are several keyword arguments. Many of these map directly to the
 `g-ir-scanner` tool so see its documentation for more information.
 
 * `dependencies`: deps to use during introspection scanning
+* `doc_format`: (*Added 1.8.0*) format of the inline documentation
 * `extra_args`: command line arguments to pass to gir compiler
 * `env`: (*Added 1.2.0*) environment variables to set, such as
   `{'NAME1': 'value1', 'NAME2': 'value2'}` or `['NAME1=value1', 'NAME2=value2']`,
@@ -105,7 +106,8 @@ There are several keyword arguments. Many of these map directly to the
 * `identifier_prefix`: the identifier prefix for the gir object,
   e.g. `Gtk`
 * `includes`: list of gir names to be included, can also be a GirTarget
-* `header`: *(Added 0.43.0)* name of main c header to include for the library, e.g. `glib.h`
+* `header`: *(Added 0.43.0)* name of main c header to include for the library,
+  e.g. `glib.h`, (*Since 0.61.0*) a list of headers is allowed
 * `include_directories`: extra include paths to look for gir files
 * `install`: if true, install the generated files
 * `install_gir`: (*Added 0.61.0*) overrides `install`, whether to install the
@@ -278,6 +280,8 @@ one XML file.
 * `object_manager`: *(Added 0.40.0)* if true generates object manager code
 * `annotations`: *(Added 0.43.0)* list of lists of 3 strings for the annotation for `'ELEMENT', 'KEY', 'VALUE'`
 * `docbook`: *(Added 0.43.0)* prefix to generate `'PREFIX'-NAME.xml` docbooks
+* `rst`: *(Added 1.9.0)* prefix to generate `'PREFIX'-NAME.rst` reStructuredTexts
+* `markdown`: *(Added 1.9.0)* prefix to generate `'PREFIX'-NAME.md` markdowns
 * `build_by_default`: causes, when set to true, to have this target be
   built by default, that is, when invoking plain `meson compile`, the default
   value is true for all built target types
@@ -287,8 +291,9 @@ one XML file.
 
 Starting *0.46.0*, this function returns a list of at least two custom
 targets (in order): one for the source code and one for the header.
-The list will contain a third custom target for the generated docbook
-files if that keyword argument is passed.
+The list can then contain other custom targets for the generated documentation
+files depending if the keyword argument is passed (in order): the docbook
+target, the reStructuredText target and the markdown target.
 
 Earlier versions return a single custom target representing all the
 outputs. Generally, you should just add this list of targets to a top

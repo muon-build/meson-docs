@@ -12,9 +12,11 @@ description: |
   A dictionary can be passed instead of a
   [[@cfg_data]] object.
 
-  When a list of strings is passed to the `command:` keyword argument,
+  When an array of strings is passed to the `command:` keyword argument,
   it takes any source or configured file as the `input:` and assumes
   that the `output:` is produced when the specified command is run.
+
+  You can install the outputted file with the `install_dir:` kwarg, see below.
 
   *(since 0.47.0)* When the `copy:` keyword argument is set to `true`,
   this function will copy the file provided in `input:` to a file in the
@@ -34,7 +36,7 @@ kwargs:
       file specified as `output`.
 
   command:
-    type: list[str | file]
+    type: array[str | file]
     description: |
       As explained above, if specified, Meson does not create
       the file itself but rather runs the specified command, which allows
@@ -103,7 +105,7 @@ kwargs:
       string, the file is not installed.
 
   install_mode:
-    type: list[str | int]
+    type: array[str | int]
     since: 0.47.0
     description: |
       Specify the file mode in symbolic format
@@ -153,3 +155,21 @@ kwargs:
     description: |
       When specified, macro guards will be used instead of '#pragma once'. The
       macro guard name will be the specified name.
+
+  build_subdir:
+    type: str
+    since: 1.10.0
+    description:
+      Places the build results in a subdirectory of the given name
+      rather than directly into the build directory. This does not
+      affect the install directory, which uses install_dir.
+
+      This allows inserting a directory name into the build path,
+      either when needed to use the build result while building other
+      targets or as a way to support multiple targets with the same
+      basename by using unique build_subdir values for each one.
+
+      To prevent collisions within the build directory, build_subdir
+      is not allowed to match a file or directory in the source
+      directory, nor contain '..' to refer to the parent of the build
+      directory.

@@ -150,6 +150,8 @@ combined = str1 + '_' + str2 # combined is now abc_xyz
 
 You can concatenate any two strings using `/` as an operator to build paths.
 This will always use `/` as the path separator on all platforms.
+If any one of the individual segments is an absolute path, all segments before
+it are dropped.  For example:
 
 ```meson
 joined = '/usr/share' / 'projectname'    # => /usr/share/projectname
@@ -564,7 +566,7 @@ executable('exe1', 'foo.c', 'bar.c', 'foobar.c')
 
 Because of an internal implementation detail, the following syntax
 is currently also supported, even though the first argument of
-[[executable]] is a single [[@str]] and not a [[@list]]:
+[[executable]] is a single [[@str]] and not a [[@array]]:
 
 ```meson
 # WARNING: This example is only valid because of an internal

@@ -222,7 +222,7 @@ a colon:
 $ meson configure -Dsubproject:option=newvalue
 ```
 
-**NOTE:** If you cannot call `meson configure` you likely have a old
+**NOTE:** If you cannot call `meson configure` you likely have an old
   version of Meson. In that case you can call `mesonconf` instead, but
   that is deprecated in newer versions
 
@@ -243,6 +243,10 @@ project which also has an option called `some_option`, then calling
 `get_option` returns the value of the superproject. If the value of
 `yield` is `false`, `get_option` returns the value of the subproject's
 option.
+
+*Since 1.8.0* `-Dsub:some_option=anothervalue`, when used with a
+yielding option, sets the value separately from the option
+it yields to.
 
 
 ## Built-in build options

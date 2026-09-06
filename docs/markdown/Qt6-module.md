@@ -69,7 +69,7 @@ It takes no positional arguments, and the following keyword arguments:
     directory. For instance, when a file called `subdir/one.input` is processed
     it generates a file `{target private directory}/subdir/one.out` when `true`,
     and `{target private directory}/one.out` when `false` (default).
-  - `output_json` bool: *New in 1.7.0*. If `true`, generates additionnaly a
+  - `output_json` bool: *New in 1.7.0*. If `true`, generates additionally a
     JSON representation which may be used by external tools such as qmltyperegistrar
 
 ## preprocess
@@ -134,7 +134,7 @@ lrelease, it takes no positional arguments, and the following keyword arguments:
  - `qresource` string: rcc source file to extract ts_files from; cannot be used
    with ts_files kwarg.
  - `rcc_extra_arguments` string[]: any additional arguments to `rcc` (optional),
-   when used with `qresource.
+   when used with `qresource`.
 
 Returns either: a list of custom targets for the compiled
 translations, or, if using a `qresource` file, a single custom target
@@ -163,6 +163,8 @@ This method takes the following keyword arguments:
 - `tools`: string[]: *Since 1.6.0*. List of tools to check. Testable tools
   are `moc`, `uic`, `rcc` and `lrelease`. By default `tools` is set to `['moc',
   'uic', 'rcc', 'lrelease']`
+- `version` str | array[str]: *Since 1.11.0*. Specifies the required version,
+  a string containing a comparison operator followed by the version string.
 
 ## qml_module
 

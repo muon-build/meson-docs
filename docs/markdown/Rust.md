@@ -27,14 +27,20 @@ feature is stabilized.
 
 ## Mixing Rust and non-Rust sources
 
-Meson currently does not support creating a single target with Rust and non Rust
-sources mixed together, therefore one must compile multiple libraries and link
-them.
+*(Since 1.9.0)* Rust supports mixed targets, but only supports using
+`rustc` as the linker for such targets. If you need to use a non-Rust
+linker, or support Meson < 1.9.0, see below.
+
+Until Meson 1.9.0, Meson did not support creating a single target with
+Rust and non Rust sources mixed together. One had to compile a separate
+Rust `static_library` or `shared_library`, and link it into the C build
+target (e.g., a library or an executable).
 
 ```meson
 rust_lib = static_library(
     'rust_lib',
     sources : 'lib.rs',
+    rust_abi: 'c',
     ...
 )
 
@@ -44,7 +50,6 @@ c_lib = static_library(
     link_with : rust_lib,
 )
 ```
-This is an implementation detail of Meson, and is subject to change in the future.
 
 ## Mixing Generated and Static sources
 
@@ -83,7 +88,7 @@ Meson will generate a `rust-project.json` file in the root of the build
 directory if there are any rust targets in the project. Most IDEs will need to
 be configured to use the file as it's not in the source root (Meson does not
 write files into the source directory). [See the upstream
-docs](https://rust-analyzer.github.io/manual.html#non-cargo-based-projects) for
+docs](https://rust-analyzer.github.io/book/non_cargo_based_projects.html) for
 more information on how to configure that.
 
 ## Linking with standard libraries
@@ -93,3 +98,80 @@ target is a proc macro or dylib, or it depends on a dylib, in which case [`-C
 prefer-dynamic`](https://doc.rust-lang.org/rustc/codegen-options/index.html#prefer-dynamic)
 will be passed to the Rust compiler, and the standard libraries will be
 dynamically linked.
+
+## Multiple targets for the same crate name
+
+For library targets that have `rust_abi: 'rust'`, the crate name is derived from the
+target name.  First, dashes, spaces and dots are replaced with underscores.  Second,
+*since 1.10.0* anything after the first `+` is dropped.  This allows creating multiple
+targets for the same crate name, for example when the same crate is built multiple
+times with different features, or for both the build and the host machine.
+
+## Compiler vs. linker arguments for Rust
+
+While `rustc` integrates the compiler and linker phase, it is useful
+to pass linker arguments to it via the `-Clink-arg=` command line
+option.
+
+*Since 1.11.0* `add_project_link_arguments()`,
+`add_global_link_arguments()`, the `link_args` keyword argument wrap the
+arguments with `-Clink-arg=` before passing them to the Rust compiler.
+Furthermore, these arguments are only included when creating binary or
+shared library crates.  Likewise, methods such as `has_link_argument()`
+wrap the arguments being tested with `-Clink-arg=`.
+
+## Cargo interaction
+
+*Since 1.11.0*
+
+In most cases, a Rust program will use Cargo to download crates.  Meson is able
+to build Rust library crates based on a `Cargo.toml` file; each external crate
+corresponds to a subproject.  Rust modules that do not need a `build.rs` file
+need no intervention, whereas if a `build.rs` file is present it needs to be
+converted manually to Meson code.
+
+To enable automatic configuration of Cargo dependencies, your project must
+have `Cargo.toml` and `Cargo.lock` files in the root source directory;
+this enables proper feature resolution across crates.  You can then
+create a workspace object using the Rust module, and retrieve specific
+packages from the workspace:
+
+```meson
+rust = import('rust')
+cargo_ws = rustmod.workspace()
+anyhow_dep = ws.subproject('anyhow').dependency()
+```
+
+The workspace object also enables configuration of Cargo features, for example
+from Meson options:
+
+```meson
+cargo_ws = rustmod.workspace(
+    features: ['feature1', 'feature2'])
+```
+
+Finally, the workspace object is able to build targets specified in `lib`
+or `bin` sections, extracting compiler arguments for dependencies and
+diagnostics from the Cargo.toml file.  The simplest case is that of building
+a simple binary crate:
+
+```meson
+cargo_ws.package().executable(install: true)
+```
+
+For a workspace:
+
+```meson
+pkg_lib = cargo_ws.package('myproject-lib')
+lib = pkg_lib.library(install: false)
+pkg_lib.override_dependency(declare_dependency(link_with: lib))
+
+cargo_ws.package().executable(install: true)
+```
+
+Sources are automatically discovered, but can be specified as a
+[[@structured_src]] if they are partly generated.
+
+It is still possible to use keyword arguments to link non-Rust build targets,
+or even to use the usual Meson functions such as [[static_library]] or
+[[executable]].

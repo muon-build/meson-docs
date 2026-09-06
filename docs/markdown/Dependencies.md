@@ -388,6 +388,9 @@ additional toolkit libraries that need to be explicitly linked to. If the
 CUDA Toolkit cannot be found in the default paths on your system, you can
 set the path using `CUDA_PATH` explicitly.
 
+Cuda does not honor the `prefer_static` option, and will link statically unless
+the `static` keyword argument is set to `false`.
+
 ## CUPS
 
 `method` may be `auto`, `config-tool`, `pkg-config`, `cmake` or `extraframework`.
@@ -656,8 +659,8 @@ not provide them, it will search for the standard wrapper executables,
 `mpic`, `mpicxx`, `mpic++`, `mpifort`, `mpif90`, `mpif77`. If these
 are not in your path, they can be specified by setting the standard
 environment variables `MPICC`, `MPICXX`, `MPIFC`, `MPIF90`, or
-`MPIF77`, during configuration. It will also try to use the Microsoft
-implementation on windows via the `system` method.
+`MPIF77`, during configuration. On Windows, Meson uses the `system` method and
+searches for Microsoft MPI. *Since 1.11.0* Intel MPI is also supported.
 
 `method` may be `auto`, `config-tool`, `pkg-config` or `system`.
 
@@ -682,8 +685,8 @@ Meson uses pkg-config to find NetCDF.
 *(added 1.4.0)*
 
 `method` may be `auto`, `pkg-config`, or `config-tool`.
-`dependency('numpy')` supports regular use of the NumPy C API.
-Use of `numpy.f2py` for binding Fortran code isn't yet supported.
+`dependency('numpy')` supports regular use of the NumPy C API, for
+`numpy>=2.0`. Use of `numpy.f2py` for binding Fortran code isn't yet supported.
 
 ## ObjFW
 
@@ -800,7 +803,8 @@ flags. (since v0.47.0)
 **Note** using private headers in your project is a bad idea, do so at
 your own risk.
 
-`method` may be `auto`, `pkg-config` or `qmake`.
+`method` may be `auto`, `pkg-config`, `config-tool` or `qmake` (*deprecated
+since 0.58.0*; use `config-tool` instead).
 
 ## SDL2
 
@@ -878,7 +882,7 @@ $ wx-config --libs std stc
 ## Zlib
 
 Zlib ships with pkg-config and cmake support, but on some operating
-systems (windows, macOs, FreeBSD, dragonflybsd, android), it is provided as
+systems (Windows, macOS, FreeBSD, DragonFly BSD, Android), it is provided as
 part of the base operating system without pkg-config support. The new
 System finder can be used on these OSes to link with the bundled
 version.

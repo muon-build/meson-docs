@@ -322,8 +322,8 @@ foo-bar-1.0 = foo_bar_dep
 **Note**: This is experimental and has no backwards or forwards compatibility guarantees.
 See [Meson's rules on mixing build systems](Mixing-build-systems.md).
 
-Cargo subprojects automatically override the `<package_name>-<version>-rs` dependency
-name:
+Cargo subprojects automatically call `override_dependency` with the name
+`<package_name>-<version>-<suffix>`, where every part is defeined as follows:
 - `package_name` is defined in `[package] name = ...` section of the `Cargo.toml`.
 - `version` is the API version deduced from `[package] version = ...` as follow:
   * `x.y.z` -> 'x'
@@ -331,9 +331,9 @@ name:
   * `0.0.x` -> '0'
   It allows to make different dependencies for incompatible versions of the same
   crate.
-- `-rs` suffix is added to distinguish from regular system dependencies, for
-  example `gstreamer-1.0` is a system pkg-config dependency and `gstreamer-0.22-rs`
-  is a Cargo dependency.
+- the suffix is `-rs` for `rlib` and `dylib` crate types.  The suffix is added to
+  distinguish Rust crates from C-ABI dependencies; for example `gstreamer-1.0`
+  is a system pkg-config dependency and `gstreamer-0.22-rs` is a Cargo dependency.
 
 That means the `.wrap` file should have `dependency_names = foo-1-rs` in their
 `[provide]` section when `Cargo.toml` has package name `foo` and version `1.2`.
@@ -361,10 +361,18 @@ Some naming conventions need to be respected:
   This is typically used as `extra_args += ['--cfg', 'foo']`.
 - The `extra_deps` variable is pre-defined and can be used to add extra dependencies.
   This is typically used as `extra_deps += dependency('foo')`.
+- The `features` variable is pre-defined and contains the list of features enabled
+  on this crate.
 
-Since *1.5.0* Cargo wraps can also be provided with `Cargo.lock` file at the root
-of (sub)project source tree. Meson will automatically load that file and convert
-it into a series of wraps definitions.
+Since *1.5.0* Cargo wraps can also be provided with `Cargo.lock` file at the
+root of (sub)project source tree. Meson will automatically load that file, looking
+for crates found on `crates.io` or in a git repository, and will convert those
+crates into a series of wraps definitions.  Since *1.11.0* the overlay directory
+(`patch_directory`) is automatically detected, using the same directory as the
+dependency name for `crates.io` URLs, and the final component of the URL
+(possibly with the `.git` suffix removed) for "git" URLs.
+
+Since *1.10.0* Workspace Cargo.toml are supported.
 
 ## Using wrapped projects
 
